@@ -82,9 +82,22 @@ describe("Lock", function () {
       check(infiTokenAddress, nativeTokenAddr);
     });
 
-    // it("Check set Rate function with native token => token success", async function () {
-    //   check(nativeTokenAddr, ice.address);
-    // });
+    it("Check set Rate function with native token => token success", async function () {
+      const { contract, owner, infiToken, curveToken, nativeTokenAddr } = await loadFixture(
+        deployContractAndSetVariables
+      );
+      const infiTokenAddress = await infiToken.getAddress();
+      const curveTokenAddress = await curveToken.getAddress();
+
+      const rate = 20;
+      const check = async (token1, token2) => {
+        await contract.connect(owner).setRate(token1, token2, rate);
+        const rate1 = await contract.getRate(token1, token2);
+        console.log({ rate1, rate }, "come to set rate");
+        expect(Number(rate1)).to.equal(rate);
+      };
+      check(nativeTokenAddr, curveTokenAddress);
+    });
   });
   describe("Check set Rate function fail", async function () {
     const { contract, owner, infiToken, curveToken, user1 } = await loadFixture(deployContractAndSetVariables);
@@ -111,7 +124,6 @@ describe("Lock", function () {
       const depositAmount = 100;
       const rateInfiTokenToCurveValue = 50;
       const rateCurveToInfiValue = 60;
-      const tokenInAmount = 10;
       //Set Rate
       await contract.connect(owner).setRate(infiTokenAddress, curveTokenAddress, rateInfiTokenToCurveValue);
       await contract.connect(owner).setRate(infiTokenAddress, nativeTokenAddr, rateCurveToInfiValue);
@@ -141,13 +153,11 @@ describe("Lock", function () {
       const contractAddress = await contract.getAddress();
 
       const tokenOutAmount = Number((tokenInAmount * rateInfiTokenToCurveValue) / 10 ** 18);
-      console.log({ tokenOutAmount });
       const balanceInfiInit = Number(fromWei(await infiToken.balanceOf(user1Address)));
       const balanceCurveiInit = Number(fromWei(await curveToken.balanceOf(user1Address)));
       const res = await contract.connect(user1).swap(infiTokenAddress, curveTokenAddress, toWei(tokenInAmount));
       const balanceInfiFinal = Number(fromWei(await infiToken.balanceOf(user1Address)));
       const balanceCurveFinal = Number(fromWei(await curveToken.balanceOf(user1Address)));
-      console.log({ balanceCurveFinal, balanceCurveiInit, tokenOutAmount });
       expect(balanceInfiInit).to.equal(balanceInfiFinal + tokenInAmount);
       expect(balanceCurveFinal).to.equal(balanceCurveiInit - tokenOutAmount);
     });
