@@ -16,10 +16,10 @@ describe("Token", async function () {
     token = await TOKEN.deploy("phuoc","p",toWei(supply));
   });
 
-  // describe("Deployment", function () {
-  //   it("Mint and check the token", async function () {
-  //     expect(fromWei(await token.totalSupply())).to.equal(supply);
-  //     expect(fromWei(await token.balanceOf(deployer.address))).to.equal(supply);
-  //   });
-  // });
+  describe("Deployment", function () {
+    it("Mint and check the token", async function () {
+      expect(fromWei(await token.totalSupply())).to.equal(supply);
+      expect(fromWei(await token.balanceOf(deployer.address))).to.equal(supply);
+    });
+  });
 });

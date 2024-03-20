@@ -22,8 +22,13 @@ contract MultiSwap {
 
     event SetRate(address _token1, address _token2, uint _rate);
 
-    function setRate(address _fromToken, address _toToken, uint256 _rate) external onlyAdmin {
+    function setRate(
+        address _fromToken,
+        address _toToken,
+        uint256 _rate
+    ) external onlyAdmin {
         rates[_fromToken][_toToken] = _rate;
+        rates[_toToken][_fromToken] = 1e18 / _rate;
         emit SetRate(_fromToken, _toToken, _rate);
     }
 
@@ -47,7 +52,7 @@ contract MultiSwap {
         address _tokenOut,
         uint256 _amountIn
     ) public view returns (uint256) {
-        return (_amountIn * rates[_tokenIn][_tokenOut]) / 10**18;
+        return (_amountIn * rates[_tokenIn][_tokenOut]) / 10 ** 18;
     }
 
     function _handleAmountIn(address _tokenIn, uint _amountIn) internal {
@@ -78,7 +83,7 @@ contract MultiSwap {
         return rates[_token1][_token2];
     }
 
-    function depositToken(address _tokenIn, uint _amountIn) public payable{
+    function depositToken(address _tokenIn, uint _amountIn) public payable {
         _handleAmountIn(_tokenIn, _amountIn);
     }
 
