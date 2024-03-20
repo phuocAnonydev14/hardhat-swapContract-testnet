@@ -52,7 +52,7 @@ contract MultiSwap {
         address _tokenOut,
         uint256 _amountIn
     ) public view returns (uint256) {
-        return (_amountIn * rates[_tokenIn][_tokenOut]) / 10 ** 18;
+        return (_amountIn * rates[_tokenIn][_tokenOut]) / 10 ** 18; // convert to wei unit
     }
 
     function _handleAmountIn(address _tokenIn, uint _amountIn) internal {
