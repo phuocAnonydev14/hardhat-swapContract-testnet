@@ -27,7 +27,7 @@ contract MultiSwap {
         address _toToken,
         uint256 _rate
     ) external onlyAdmin {
-        rates[_fromToken][_toToken] = _rate;
+        rates[_fromToken][_toToken] = _rate * 1e18;
         rates[_toToken][_fromToken] = 1e18 / _rate;
         emit SetRate(_fromToken, _toToken, _rate);
     }
@@ -47,6 +47,21 @@ contract MultiSwap {
         emit Swap(msg.sender, _tokenIn, _tokenOut, _amountIn, amountOut);
     }
 
+     function swapWithoutPayable(
+        address _tokenIn,
+        address _tokenOut,
+        uint256 _amountIn
+    ) external {
+        require(_amountIn > 0, "Invalid amount");
+
+        uint256 amountOut = calculateAmountOut(_tokenIn, _tokenOut, _amountIn);
+
+        IERC20(_tokenIn).transferFrom(msg.sender, address(this), _amountIn);
+        IERC20(_tokenOut).transfer(msg.sender, amountOut);
+
+        emit Swap(msg.sender, _tokenIn, _tokenOut, _amountIn, amountOut);
+    }
+
     function calculateAmountOut(
         address _tokenIn,
         address _tokenOut,
@@ -62,8 +77,7 @@ contract MultiSwap {
                 "Amount must be equal to msg.value"
             );
             return;
-        }
-        IERC20(_tokenIn).approve(msg.sender, _amountIn);
+        } 
         IERC20(_tokenIn).transferFrom(msg.sender, address(this), _amountIn);
     }
 
@@ -85,6 +99,10 @@ contract MultiSwap {
 
     function depositToken(address _tokenIn, uint _amountIn) public payable {
         _handleAmountIn(_tokenIn, _amountIn);
+    }
+
+    function depositTokenWithoutPayable(address _tokenIn, uint _amountIn) public {
+        IERC20(_tokenIn).transferFrom(msg.sender, address(this), _amountIn);
     }
 
     // Modifier only admin execute function

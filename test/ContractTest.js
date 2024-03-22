@@ -13,7 +13,7 @@ describe("Lock", function () {
   // We use loadFixture to run this setup once, snapshot that state,
   // and reset Hardhat Network to that snapshot in every test.
   async function deployContractAndSetVariables() {
-    const supplyToken = 5 * 10 ** 5;
+    const supplyToken = 5 * 10 ** 9;
     // Contracts are deployed using the first signer/account by default
     const [owner, user1, user2] = await ethers.getSigners();
     const Contract = await ethers.getContractFactory("MultiSwap");
@@ -60,7 +60,7 @@ describe("Lock", function () {
       const check = async (token1, token2) => {
         await contract.connect(owner).setRate(token1, token2, rate);
         const rate1 = await contract.getRate(token1, token2);
-        expect(Number(rate1)).to.equal(rate);
+        expect(rate1).to.equal(toWei(rate));
       };
       await check(infiTokenAddress, curveTokenAddress);
     });
@@ -76,7 +76,7 @@ describe("Lock", function () {
       const check = async (token1, token2) => {
         await contract.connect(owner).setRate(token1, token2, rate);
         const rate1 = await contract.getRate(token1, token2);
-        console.log({ rate1, rate }, "come to set rate");
+        console.log({ rate1, rate }, "come to set rate") ;
         expect(Number(rate1)).to.equal(rate);
       };
       check(infiTokenAddress, nativeTokenAddr);
@@ -89,7 +89,7 @@ describe("Lock", function () {
       const infiTokenAddress = await infiToken.getAddress();
       const curveTokenAddress = await curveToken.getAddress();
 
-      const rate = 20;
+      const rate = toWei(20);
       const check = async (token1, token2) => {
         await contract.connect(owner).setRate(token1, token2, rate);
         const rate1 = await contract.getRate(token1, token2);
@@ -210,7 +210,7 @@ describe("Lock", function () {
       const rateCurveToInfiValue = 60;
       await expect(
         contract.connect(user1).swap(nativeTokenAddr, curveTokenAddress, 0, { value: 0 })
-      ).to.be.revertedWith("Amount must be greater than 0");
+      ).to.be.revertedWith("Invalid amount");
     });
   });
 });
